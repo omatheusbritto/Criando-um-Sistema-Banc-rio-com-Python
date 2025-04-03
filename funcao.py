@@ -176,6 +176,7 @@ def mostrar_menu_principal():
 | PARA FUNÇÕES INTERNAS --------------- [2] |''')
     
 def menu_principal():
+        linha()
         while True:
             mostrar_menu_principal()
             linha()
@@ -210,6 +211,7 @@ def menu_bancario():
         elif navegar == 4:
             mostrar_extrato()
         elif navegar == 5:
+            limpar_a_tela()
             menu_principal()
         else:
             print('| ----------------- ERRO!!! --------------- |')
@@ -230,6 +232,7 @@ def menu_interno():
         elif navegar == 2:
             mostrar_cadastro()
         elif navegar ==3:
+            limpar_a_tela()
             menu_principal()
         else:
             print('| ----------------- ERRO!!! --------------- |')
@@ -241,4 +244,3 @@ def main():
     fechar = input('Aperte tecla ENTER para fechar')
     while fechar != '':
         menu_principal()
-        

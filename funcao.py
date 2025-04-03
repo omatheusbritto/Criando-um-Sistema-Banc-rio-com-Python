@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 import pytz
 from classe import Usuario, Endereco
 
@@ -16,6 +17,9 @@ database.append(usuario)
 limite_de_saque = 0
 def linha():
     print(f'-'*45)
+def limpar_a_tela():
+    seguir = input('Aperte ENTER para continuar:')
+    os.system('cls' if os.name =='nt' else 'clear')
 
 def saque():
     global saldo
@@ -25,38 +29,50 @@ def saque():
     if saque < saldo and transacao < 10 and limite_de_saque < 1500:
         if saque > 500:
             print('ERRO - Valor maior que o permitido')
+            limpar_a_tela()
         elif (limite_de_saque + saque) > 1500:
             resta = 1500 - limite_de_saque
             if resta == 0:
                 print('Limite de saque diário atingido')
                 print('')
+                limpar_a_tela()
             else:
                 print(f'ERRO!!! valor restante de saque diário permitido é de R${resta:.2f}')
                 print('')
+                limpar_a_tela()
         
         elif saque < 0:
-            print(f'ERRO!!! valor inválido')
+            print(f'ERRO!!! Valor inválido')
+            limpar_a_tela()
 
         else:
-            saldo -= saque
-            limite_de_saque += saque
-            transacao += 1
-            registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
-                'Saldo R$': f'{saldo:.2f}'}
-            print(f'SAQUE REALIZADO')
-            print('')
-            extrato.append(registro)
+            print(f'Saldo insuficiente')
+            limpar_a_tela()
 
-    elif transacao == 10:
+    if transacao == 10:
         print(f'Limite de transação diária atingida')
         print('')
-    else:
-        print('ERRO!!! Operação inválida')
+        limpar_a_tela()
+    
+    elif saldo >= saque:
+        saldo -= saque
+        limite_de_saque += saque
+        transacao += 1
+        registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
+                'Saldo R$': f'{saldo:.2f}'}
+        print(f'SAQUE REALIZADO')
         print('')
+        limpar_a_tela()
+        extrato.append(registro)
+    else:
+        print('ERRO!!! Saldo insuficiente')
+        print('')
+        limpar_a_tela()
 
 def mostrar_saldo():
     global saldo
     print(f' Data: {data_registrada} \n Saldo atual em conta é de R${saldo:.2f}')
+    limpar_a_tela()
     print('')
 
 def deposito():
@@ -67,8 +83,10 @@ def deposito():
     if deposito < 0 or transacao == 10:
         if transacao == 10:
             print('Limite de transação diaria atingida')
+            limpar_a_tela()
         else:
             print('Valor inválido!!!')
+            limpar_a_tela()
     else:
         transacao += 1
         registro = {'Data do depósito: ':data_registrada,'Saldo R$': f'{saldo:.2f}', 
@@ -76,6 +94,7 @@ def deposito():
     extrato.append(registro)
     saldo += deposito 
     print(f'DEPÓSITO REALIZADO')
+    limpar_a_tela()
     print('')
 
 def mostrar_extrato():
@@ -85,6 +104,7 @@ def mostrar_extrato():
             print(f'{keys} {value}')
         print('')
     mostrar_saldo()
+    limpar_a_tela()
 
 def validacao(cpf):
     global continuar
@@ -94,9 +114,10 @@ def validacao(cpf):
                 keys = dados[0],values = dados[1]
                 if cpf == values:
                     print('')
-                    print(f'Dado encontrado!!! {keys} : {values}')
+                    print(f'Dado cadastrado!!! {keys} : {values}')
                     continuar =+ 1
         i += 1
+        limpar_a_tela()
             
 def cadastrar_usuario():
     global database
@@ -133,14 +154,14 @@ def cadastrar_usuario():
                             'Estado: ': moradia.estado,
                             'País: ': moradia.pais})
         database.append(usuario)
-
         print(f'Cadastro concluido')
-        
+        limpar_a_tela()
 def mostrar_cadastro():
     controle = 1
     if len(database) <= 1:
         print('')
         print('Nenhum usuario cadastrado! ')
+        limpar_a_tela()
         print('')
     else:
         while controle < len(database):
@@ -149,7 +170,7 @@ def mostrar_cadastro():
                 keys = usuario[0], value = usuario[1]
                 print(f'{keys}{value}')
             i += 1
-
+        limpar_a_tela()
 def mostrar_menu_principal():
     print('''| PARA FUNÇÕES BANCÁRIAS -------------- [1] |
 | PARA FUNÇÕES INTERNAS --------------- [2] |''')
@@ -220,3 +241,4 @@ def main():
     fechar = input('Aperte tecla ENTER para fechar')
     while fechar != '':
         menu_principal()
+        

@@ -13,32 +13,51 @@ database =[]
 usuario = {'CPF: ':''}
 continuar = 0
 database.append(usuario)
-
+limite_de_saque = 0
 def linha():
     print(f'-'*45)
 
 def saque():
     global saldo
     global transacao
+    global limite_de_saque
     saque = float(input('Valor a ser sacado R$').replace(',','.'))
-    if saque < saldo and transacao < 10:
-        while saque > 500:
-            print('ERRO - maior que o permitido')
-            saque = float(input('Valor a ser sacado R$').replace(',','.'))
-        saldo -= saque
-        transacao += 1
-        registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
+    if saque < saldo and transacao < 10 and limite_de_saque < 1500:
+        if saque > 500:
+            print('ERRO - Valor maior que o permitido')
+        elif (limite_de_saque + saque) > 1500:
+            resta = 1500 - limite_de_saque
+            if resta == 0:
+                print('Limite de saque diário atingido')
+                print('')
+            else:
+                print(f'ERRO!!! valor restante de saque diário permitido é de R${resta:.2f}')
+                print('')
+        
+        elif saque < 0:
+            print(f'ERRO!!! valor inválido')
+
+        else:
+            saldo -= saque
+            limite_de_saque += saque
+            transacao += 1
+            registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
                 'Saldo R$': f'{saldo:.2f}'}
-        extrato.append(registro)
+            print(f'SAQUE REALIZADO')
+            print('')
+            extrato.append(registro)
 
     elif transacao == 10:
         print(f'Limite de transação diária atingida')
+        print('')
     else:
         print('ERRO!!! Operação inválida')
+        print('')
 
 def mostrar_saldo():
     global saldo
     print(f' Data: {data_registrada} \n Saldo atual em conta é de R${saldo:.2f}')
+    print('')
 
 def deposito():
     global saldo
@@ -56,6 +75,8 @@ def deposito():
                 'Depósito R$': f'{deposito:.2f}'}
     extrato.append(registro)
     saldo += deposito 
+    print(f'DEPÓSITO REALIZADO')
+    print('')
 
 def mostrar_extrato():
     global extrato
@@ -67,11 +88,10 @@ def mostrar_extrato():
 
 def validacao(cpf):
     global continuar
-    i = 0
-    while i < len(database):
-        for controle in database[i].items():
-                keys = controle[0]
-                values = controle[1]
+    controle = 0
+    while controle < len(database):
+        for dados in database[controle].items():
+                keys = dados[0],values = dados[1]
                 if cpf == values:
                     print('')
                     print(f'Dado encontrado!!! {keys} : {values}')
@@ -116,26 +136,38 @@ def cadastrar_usuario():
 
         print(f'Cadastro concluido')
         
-
-
 def mostrar_cadastro():
-
-    i = 1
+    controle = 1
     if len(database) <= 1:
         print('')
         print('Nenhum usuario cadastrado! ')
         print('')
     else:
-        while i < len(database):
+        while controle < len(database):
             linha()
-            for usuario in database[i].items():
-
-                keys = usuario[0]
-                value = usuario[1]
+            for usuario in database[controle].items():
+                keys = usuario[0], value = usuario[1]
                 print(f'{keys}{value}')
             i += 1
 
-def mostrar_menu_secundario():
+def mostrar_menu_principal():
+    print('''| PARA FUNÇÕES BANCÁRIAS -------------- [1] |
+| PARA FUNÇÕES INTERNAS --------------- [2] |''')
+    
+def menu_principal():
+        while True:
+            mostrar_menu_principal()
+            linha()
+            navegar = int(input(''))
+            if navegar == 1:
+                menu_bancario()
+            elif navegar == 2:
+                menu_interno()
+            else:
+                print('| ----------------- ERRO!!! --------------- |')
+                linha()
+
+def mostrar_menu_bancario():
     linha()
     print('''| Para SACAR -------------------------- [1] |
 | Para DEPOSITAR ---------------------- [2] |
@@ -144,9 +176,9 @@ def mostrar_menu_secundario():
 | Para VOLTAR AO MENU PRINCIPAL ------- [5] |''')
     linha()
 
-def menu_secundario():
+def menu_bancario():
     while True:
-        mostrar_menu_secundario()
+        mostrar_menu_bancario()
         navegar = int(input(''))
         if navegar == 1:
             saque()
@@ -161,23 +193,23 @@ def menu_secundario():
         else:
             print('| ----------------- ERRO!!! --------------- |')
 
-def mostrar_menu_principal():
+def mostrar_menu_interno():
     linha()
     print('''| Para CADASTRAR NOVOS USUARIOS ------- [1] |
 | Para LISTAR USUARIOS ---------------- [2] |
-| Para FUNÇÕES BANCARIAS -------------- [3] |''')
+| Para VOLTAR AO MENU PRINCIPAL ------- [3] |''')
 
-def menu_principal():
+def menu_interno():
     while True:
-        mostrar_menu_principal()
+        mostrar_menu_interno()
         linha()
-        opcao = int(input(''))
-        if opcao == 1:
+        navegar = int(input(''))
+        if navegar == 1:
             cadastrar_usuario()
-        elif opcao == 2:
+        elif navegar == 2:
             mostrar_cadastro()
-        elif opcao ==3:
-            menu_secundario()
+        elif navegar ==3:
+            menu_principal()
         else:
             print('| ----------------- ERRO!!! --------------- |')
             linha()

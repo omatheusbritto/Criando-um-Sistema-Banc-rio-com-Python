@@ -1,0 +1,190 @@
+from datetime import datetime
+import pytz
+from classe import Usuario, Endereco
+
+agora = datetime.now(pytz.timezone("America/Sao_Paulo"))
+mascara_ptbr=('%d/%m/%Y %a %H:%M:%S')
+data_registrada = agora.strftime(mascara_ptbr)
+saldo = 0
+extrato = []
+registro = {}
+transacao = 0
+database =[]
+usuario = {'CPF: ':''}
+continuar = 0
+database.append(usuario)
+
+def linha():
+    print(f'-'*45)
+
+def saque():
+    global saldo
+    global transacao
+    saque = float(input('Valor a ser sacado R$').replace(',','.'))
+    if saque < saldo and transacao < 10:
+        while saque > 500:
+            print('ERRO - maior que o permitido')
+            saque = float(input('Valor a ser sacado R$').replace(',','.'))
+        saldo -= saque
+        transacao += 1
+        registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
+                'Saldo R$': f'{saldo:.2f}'}
+        extrato.append(registro)
+
+    elif transacao == 10:
+        print(f'Limite de transação diária atingida')
+    else:
+        print('ERRO!!! Operação inválida')
+
+def mostrar_saldo():
+    global saldo
+    print(f' Data: {data_registrada} \n Saldo atual em conta é de R${saldo:.2f}')
+
+def deposito():
+    global saldo
+    global registro
+    global transacao
+    deposito = float(input('Valor a ser depósitado R$').replace(',','.'))
+    if deposito < 0 or transacao == 10:
+        if transacao == 10:
+            print('Limite de transação diaria atingida')
+        else:
+            print('Valor inválido!!!')
+    else:
+        transacao += 1
+        registro = {'Data do depósito: ':data_registrada,'Saldo R$': f'{saldo:.2f}', 
+                'Depósito R$': f'{deposito:.2f}'}
+    extrato.append(registro)
+    saldo += deposito 
+
+def mostrar_extrato():
+    global extrato
+    for aux in extrato:
+        for keys, value in aux.items():
+            print(f'{keys} {value}')
+        print('')
+    mostrar_saldo()
+
+def validacao(cpf):
+    global continuar
+    i = 0
+    while i < len(database):
+        for controle in database[i].items():
+                keys = controle[0]
+                values = controle[1]
+                if cpf == values:
+                    print('')
+                    print(f'Dado encontrado!!! {keys} : {values}')
+                    continuar =+ 1
+        i += 1
+            
+def cadastrar_usuario():
+    global database
+    global continuar
+    print('')
+    print(f'Cadastro de usuario!')
+    cliente = Usuario
+    cliente.cpf = input('Digite seu CPF (Apenas numeros): ')
+    continuar = 0
+    validacao(cliente.cpf)
+    if continuar == 0:
+        print('Digite seus dados para cadastro: ')
+        cliente.nome = str(input(f'Nome completo: ').title())
+        cliente.telefone = int(input(f'telefone (apenas numeros com DDD): '))
+        cliente.email =  str(input(f'E-mail: '))
+        usuario = {'CPF: ': cliente.cpf,
+                    'Nome: ': cliente.nome,
+                    'Telefone: ': cliente.telefone,
+                    'E-mail: ': cliente.email}
+        cadastrar_endereco = str(input(f'Deseja cadastrar o enredeço? [S/N]').upper())
+        if cadastrar_endereco == 'S':
+            print(f'Cadastro de endereço ')
+            moradia = Endereco
+            moradia.cep = input('CEP (Apenas números): ')
+            moradia.logradouro = input('Rua: ')
+            moradia.numero = input('Numero: ')
+            moradia.cidade = input('Cidade: ')
+            moradia.estado = input('Estado [XX]')
+            moradia.pais = input('País [XX]')
+            usuario.update({'CEP: ': moradia.cep,
+                            'Rua: ': moradia.logradouro,
+                            'Numero: ': moradia.numero,
+                            'Cidade: ': moradia.cidade,
+                            'Estado: ': moradia.estado,
+                            'País: ': moradia.pais})
+        database.append(usuario)
+
+        print(f'Cadastro concluido')
+        
+
+
+def mostrar_cadastro():
+
+    i = 1
+    if len(database) <= 1:
+        print('')
+        print('Nenhum usuario cadastrado! ')
+        print('')
+    else:
+        while i < len(database):
+            linha()
+            for usuario in database[i].items():
+
+                keys = usuario[0]
+                value = usuario[1]
+                print(f'{keys}{value}')
+            i += 1
+
+def mostrar_menu_secundario():
+    linha()
+    print('''| Para SACAR -------------------------- [1] |
+| Para DEPOSITAR ---------------------- [2] |
+| Para SALDO -------------------------- [3] |
+| Para EXTRATO------------------------- [4] |
+| Para VOLTAR AO MENU PRINCIPAL ------- [5] |''')
+    linha()
+
+def menu_secundario():
+    while True:
+        mostrar_menu_secundario()
+        navegar = int(input(''))
+        if navegar == 1:
+            saque()
+        elif navegar == 2:
+            deposito()
+        elif navegar == 3:
+            mostrar_saldo()
+        elif navegar == 4:
+            mostrar_extrato()
+        elif navegar == 5:
+            menu_principal()
+        else:
+            print('| ----------------- ERRO!!! --------------- |')
+
+def mostrar_menu_principal():
+    linha()
+    print('''| Para CADASTRAR NOVOS USUARIOS ------- [1] |
+| Para LISTAR USUARIOS ---------------- [2] |
+| Para FUNÇÕES BANCARIAS -------------- [3] |''')
+
+def menu_principal():
+    while True:
+        mostrar_menu_principal()
+        linha()
+        opcao = int(input(''))
+        if opcao == 1:
+            cadastrar_usuario()
+        elif opcao == 2:
+            mostrar_cadastro()
+        elif opcao ==3:
+            menu_secundario()
+        else:
+            print('| ----------------- ERRO!!! --------------- |')
+            linha()
+
+def main():
+    print(f'-' * 17, 'Bem vindo', '-' * 17)
+    menu_principal()
+    fechar = input('Aperte tecla ENTER para fechar')
+    while fechar != '':
+        menu_principal()

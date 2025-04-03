@@ -107,17 +107,18 @@ def mostrar_extrato():
     limpar_a_tela()
 
 def validacao(cpf):
+    global database
     global continuar
     controle = 0
     while controle < len(database):
         for dados in database[controle].items():
-                keys = dados[0],values = dados[1]
-                if cpf == values:
-                    print('')
-                    print(f'Dado cadastrado!!! {keys} : {values}')
-                    continuar =+ 1
-        i += 1
-        limpar_a_tela()
+            keys = dados[0]
+            values = dados[1]
+            if cpf == values:
+                print('')
+                print(f'Dado cadastrado!!! {keys}: {values}')
+                continuar =+ 1
+        controle += 1
             
 def cadastrar_usuario():
     global database
@@ -167,17 +168,18 @@ def mostrar_cadastro():
         while controle < len(database):
             linha()
             for usuario in database[controle].items():
-                keys = usuario[0], value = usuario[1]
+                keys = usuario[0]
+                value = usuario[1]
                 print(f'{keys}{value}')
-            i += 1
+            controle += 1
         limpar_a_tela()
 def mostrar_menu_principal():
     print('''| PARA FUNÇÕES BANCÁRIAS -------------- [1] |
 | PARA FUNÇÕES INTERNAS --------------- [2] |''')
     
 def menu_principal():
-        linha()
         while True:
+            linha()
             mostrar_menu_principal()
             linha()
             navegar = int(input(''))
@@ -186,8 +188,9 @@ def menu_principal():
             elif navegar == 2:
                 menu_interno()
             else:
+                
                 print('| ----------------- ERRO!!! --------------- |')
-                linha()
+                limpar_a_tela()
 
 def mostrar_menu_bancario():
     linha()
@@ -215,6 +218,7 @@ def menu_bancario():
             menu_principal()
         else:
             print('| ----------------- ERRO!!! --------------- |')
+            limpar_a_tela()
 
 def mostrar_menu_interno():
     linha()

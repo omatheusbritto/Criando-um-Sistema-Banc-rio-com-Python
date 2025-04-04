@@ -7,14 +7,16 @@ agora = datetime.now(pytz.timezone("America/Sao_Paulo"))
 mascara_ptbr=('%d/%m/%Y %a %H:%M:%S')
 data_registrada = agora.strftime(mascara_ptbr)
 saldo = 0
-extrato = []
-registro = {}
-transacao = 0
-database =[]
-usuario = {'CPF: ':''}
-continuar = 0
-database.append(usuario)
 limite_de_saque = 0
+posicao = 0
+transacao = 0
+continuar = 0
+extrato = []
+database = []
+registro = {}
+usuario = {'CPF: ':''}
+database.append(usuario)
+
 def linha():
     print(f'-'*45)
 def limpar_a_tela():
@@ -22,11 +24,9 @@ def limpar_a_tela():
     os.system('cls' if os.name =='nt' else 'clear')
 
 def saque():
-    global saldo
-    global transacao
-    global limite_de_saque
+    global saldo, transacao, limite_de_saque
     saque = float(input('Valor a ser sacado R$').replace(',','.'))
-    if saque < saldo and transacao < 10 and limite_de_saque < 1500:
+    if saque < saldo and transacao < 10 and limite_de_saque < 1500 and saque < 0:
         if saque > 500:
             print('ERRO - Valor maior que o permitido')
             limpar_a_tela()
@@ -54,12 +54,13 @@ def saque():
         print('')
         limpar_a_tela()
     
-    elif saldo >= saque:
+    elif saque< (saldo + 0.001):
         saldo -= saque
         limite_de_saque += saque
         transacao += 1
         registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
                 'Saldo R$': f'{saldo:.2f}'}
+        print(registro)
         print(f'SAQUE REALIZADO')
         print('')
         limpar_a_tela()
@@ -76,9 +77,7 @@ def mostrar_saldo():
     print('')
 
 def deposito():
-    global saldo
-    global registro
-    global transacao
+    global saldo, registro, transacao
     deposito = float(input('Valor a ser depósitado R$').replace(',','.'))
     if deposito < 0 or transacao == 10:
         if transacao == 10:
@@ -107,8 +106,7 @@ def mostrar_extrato():
     limpar_a_tela()
 
 def validacao(cpf):
-    global database
-    global continuar
+    global database, posicao, continuar
     controle = 0
     while controle < len(database):
         for dados in database[controle].items():
@@ -117,24 +115,39 @@ def validacao(cpf):
             if cpf == values:
                 print('')
                 print(f'Dado cadastrado!!! {keys}: {values}')
+                posicao = controle
                 continuar =+ 1
+                break
+
         controle += 1
             
 def cadastrar_usuario():
-    global database
-    global continuar
+    global database, continuar, posicao
     print('')
     print(f'Cadastro de usuario!')
-    cliente = Usuario
-    cliente.cpf = input('Digite seu CPF (Apenas numeros): ')
-    continuar = 0
-    validacao(cliente.cpf)
+    cpf = input('Digite seu CPF (Apenas numeros): ')
+    validacao(cpf)
     if continuar == 0:
-        print('Digite seus dados para cadastro: ')
+        entrada_de_dados(cpf)
+        database.append(usuario)
+        print(f'Cadastro concluido')
+    else:
+        cadastrar = str(input('deseja atualizar cadastro? [S/N]').upper())
+        if cadastrar == 'S':
+            entrada_de_dados(cpf)
+            database[posicao]= usuario
+            print(f'Atualização cadastral concluido')
+    posicao = 0
+    continuar = 0
+
+def entrada_de_dados(cpf):
+        global usuario
+        cliente = Usuario
+        print('Digite seus dados: ')
         cliente.nome = str(input(f'Nome completo: ').title())
         cliente.telefone = int(input(f'telefone (apenas numeros com DDD): '))
         cliente.email =  str(input(f'E-mail: '))
-        usuario = {'CPF: ': cliente.cpf,
+        usuario = {'CPF: ': cpf,
                     'Nome: ': cliente.nome,
                     'Telefone: ': cliente.telefone,
                     'E-mail: ': cliente.email}
@@ -154,9 +167,7 @@ def cadastrar_usuario():
                             'Cidade: ': moradia.cidade,
                             'Estado: ': moradia.estado,
                             'País: ': moradia.pais})
-        database.append(usuario)
-        print(f'Cadastro concluido')
-        limpar_a_tela()
+            
 def mostrar_cadastro():
     controle = 1
     if len(database) <= 1:
@@ -243,6 +254,11 @@ def menu_interno():
             linha()
 
 def main():
+    print(f'-' * 17, 'Bem vindo', '-' * 17)
+    menu_principal()
+    fechar = input('Aperte tecla ENTER para fechar')
+    while fechar != '':
+        menu_principal()
     print(f'-' * 17, 'Bem vindo', '-' * 17)
     menu_principal()
     fechar = input('Aperte tecla ENTER para fechar')

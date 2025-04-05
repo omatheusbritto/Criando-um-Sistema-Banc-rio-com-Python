@@ -88,10 +88,11 @@ def deposito():
             limpar_a_tela()
     else:
         transacao += 1
-        registro = {'Data do depósito: ':data_registrada,'Saldo R$': f'{saldo:.2f}', 
+        saldo += deposito 
+        registro = {'Data do depósito: ':data_registrada,'Saldo em conta R$': f'{saldo:.2f}', 
                 'Depósito R$': f'{deposito:.2f}'}
+        print(registro)
     extrato.append(registro)
-    saldo += deposito 
     print(f'DEPÓSITO REALIZADO')
     limpar_a_tela()
     print('')

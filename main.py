@@ -40,16 +40,21 @@ saldo atual em conta, Data e hora
 
 2° Funcões internas
 
-2.1 Crie um menu com as funções de cadastrar novo usuario, listar usuarios e voltar ao menu principal
+2.1 Menu interno
+2.1.1 Crie um menu com as funções de cadastrar novo usuario, listar usuarios e voltar ao menu principal
 
-2.1.1 Na função cadastrar novos usuarios, validar dados com o CPF
-Caso CPF ja esteja cadastrado mostrar mensagem (dados ja cadastrado)
-oferecer a opção de atualizar cadastro
+2.1.2 Na função cadastrar novos usuarios
 
-2.1.2 mostrar todos os dados do usuario que tenha esse CPF
+2.1.2.1 validar dados com o CPF
+Caso CPF ja esteja cadastrado oferecer a opção de atualização de cadastro
+
+2.1.2.2 Novo cadastro de usuario deve, o usuario deve inserir
+Nome completo, Email, Telefone e endereco
+
+2.1.3 mostrar todos os dados do usuario que tenha esse CPF
 cadastrar nome, email, telefone e endereço
 
-2.1.3 criar a função de volTar ao menu principal
+2.1.4 criar a função de volTar ao menu principal
 
 '''
 from funcao import main

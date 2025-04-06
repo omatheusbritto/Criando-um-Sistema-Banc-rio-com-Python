@@ -1,31 +1,109 @@
 from datetime import datetime
 import os
 import pytz
-from classe import Usuario, Endereco
+
+usuarios = {} 
+saldo = 0.0 
+contas = {'cpf': '', 'Agência: ':'', 'Nº da conta:':'numero_conta'}
+extrato = []
+registro = {}
+transacao = 0
+limite_de_saque = 0
+saques_dia = 0
+agencia = '00001'
 
 agora = datetime.now(pytz.timezone("America/Sao_Paulo"))
 mascara_ptbr=('%d/%m/%Y %a %H:%M:%S')
 data_registrada = agora.strftime(mascara_ptbr)
-saldo = 0
-limite_de_saque = 0
-posicao = 0
-transacao = 0
-continuar = 0
-extrato = []
-database = []
-registro = {}
-usuario = {'CPF: ':''}
-database.append(usuario)
 
-def linha():
-    print(f'-'*45)
+
 def limpar_a_tela():
-    seguir = input('Aperte ENTER para continuar:')
+    seguir = input('Aperte ENTER')
     os.system('cls' if os.name =='nt' else 'clear')
 
-def saque():
+def mostrar_menu_principal():
+    print("""| ============== MENU PRINCIPAL =========== |
+| PARA FUNÇÕES BANCÁRIAS -------------- [1] |
+| PARA FUNÇÕES INTERNAS --------------- [2] |
+| PARA SAIR --------------------------- [0] | 
+| ========================================= |""") 
+    
+def mostrar_menu_bancario():
+            print('''| ============ FUNÇÕES BANCÁRIAS ========== |
+| Para SACAR -------------------------- [1] |
+| Para DEPOSITAR ---------------------- [2] |
+| Para SALDO -------------------------- [3] |
+| Para EXTRATO ------------------------ [4] |
+| Para VOLTAR AO MENU PRINCIPAL ------- [5] |''') 
+
+def mostrar_menu_internas():
+    print("""| ============= FUNÇÕES INTERNAS ========== | 
+| Para CADASTRAR NOVOS USUARIOS ------- [1] |
+| Para LISTAR USUARIOS ---------------- [2] |
+| Para VOLTAR AO MENU PRINCIPAL ------- [3] | 
+| Para CRIAR CONTA BANCÁRIA ----------- [4] |""") 
+    
+def menu_principal(): 
+    while True: 
+        mostrar_menu_principal()
+        opcao = input("Escolha uma opção: ")
+        if opcao == "1":
+            limpar_a_tela()
+            menu_funcoes_bancarias()
+        elif opcao == "2":
+            limpar_a_tela()
+            menu_funcoes_internas()
+        elif opcao == "0":
+            break
+        else:
+            print("Opção inválida!")
+            limpar_a_tela()
+    limpar_a_tela()
+
+def menu_funcoes_bancarias(): 
+    global transacao
+    while True: 
+        mostrar_menu_bancario()
+        opcao = input("Escolha uma opção: ")
+        if opcao == "1":
+            sacar()
+        elif opcao == "2":
+            depositar()
+        elif opcao == "3":
+            ver_saldo()
+        elif opcao == "4":
+            ver_extrato()
+        elif opcao == "5":
+            limpar_a_tela()
+            menu_principal()
+        else:
+            print("Opção inválida!")
+            limpar_a_tela()
+
+def menu_funcoes_internas(): 
+    while True: 
+        mostrar_menu_internas()
+        opcao = input("Escolha uma opção: ")
+        if opcao == "1":
+            limpar_a_tela()
+            cadastrar_usuario()
+        elif opcao == "2":
+            limpar_a_tela()
+            listar_usuarios()
+        elif opcao == "3":
+            limpar_a_tela()
+            menu_principal()
+        elif opcao == "4":
+            criar_conta()
+            limpar_a_tela()
+        else:
+            print("Opção inválida!")
+            limpar_a_tela()
+
+
+def sacar():
     global saldo, transacao, limite_de_saque
-    saque = float(input('Valor a ser sacado R$').replace(',','.'))
+    saque = float(input('Valor a ser sacado R$').replace(',', '.'))
     if saque < saldo and transacao < 10 and limite_de_saque < 1500 and saque < 0:
         if saque > 500:
             print('ERRO - Valor maior que o permitido')
@@ -40,7 +118,7 @@ def saque():
                 print(f'ERRO!!! valor restante de saque diário permitido é de R${resta:.2f}')
                 print('')
                 limpar_a_tela()
-        
+
         elif saque < 0:
             print(f'ERRO!!! Valor inválido')
             limpar_a_tela()
@@ -53,13 +131,13 @@ def saque():
         print(f'Limite de transação diária atingida')
         print('')
         limpar_a_tela()
-    
-    elif saque< (saldo + 0.001):
+
+    elif saque < (saldo + 0.001):
         saldo -= saque
         limite_de_saque += saque
         transacao += 1
-        registro = {'Data do saque :':data_registrada, 'Saque R$': f'{saque:.2f}', 
-                'Saldo R$': f'{saldo:.2f}'}
+        registro = {'Data do saque :': data_registrada, 'Saque R$': f'{saque:.2f}',
+                    'Saldo R$': f'{saldo:.2f}'}
         print(registro)
         print(f'SAQUE REALIZADO')
         print('')
@@ -70,13 +148,33 @@ def saque():
         print('')
         limpar_a_tela()
 
-def mostrar_saldo():
-    global saldo
-    print(f' Data: {data_registrada} \n Saldo atual em conta é de R${saldo:.2f}')
-    limpar_a_tela()
-    print('')
+def criar_conta():
+    global agencia
+    cpf = input("CPF do titular: ")
+    if cpf not in usuarios:
+        print("Usuário não encontrado. Cadastre o usuário primeiro.")
+        return
+    numero_conta = input("Digite o número da nova conta: ")
+    aux = 0
+    encontrado = 0
+    while aux < len(usuarios):
+        dados = usuarios
+        for keys, values in dados.items():
+            if numero_conta in values:
+                print("Conta já existente.")
+                encontrado +=1
+                break
+            else:
+                aux = + 1
 
-def deposito():
+    if encontrado == 0:
+        contas = {'Agência: ':agencia, 'Nº da conta: ':numero_conta}
+        usuarios[cpf].update(contas)
+        print(contas)
+
+    print("Conta criada com sucesso.")
+
+def depositar():
     global saldo, registro, transacao
     deposito = float(input('Valor a ser depósitado R$').replace(',','.'))
     if deposito < 0 or transacao == 10:
@@ -88,8 +186,8 @@ def deposito():
             limpar_a_tela()
     else:
         transacao += 1
-        saldo += deposito 
-        registro = {'Data do depósito: ':data_registrada,'Saldo em conta R$': f'{saldo:.2f}', 
+        saldo += deposito
+        registro = {'Data do depósito: ':data_registrada,'Saldo em conta R$': f'{saldo:.2f}',
                 'Depósito R$': f'{deposito:.2f}'}
         print(registro)
     extrato.append(registro)
@@ -97,171 +195,62 @@ def deposito():
     limpar_a_tela()
     print('')
 
-def mostrar_extrato():
-    global extrato
-    for aux in extrato:
-        for keys, value in aux.items():
-            print(f'{keys} {value}')
-        print('')
-    mostrar_saldo()
+def ver_saldo(): 
+    print(f"Saldo atual: R$ {saldo:.2f} - {data_registrada}")
+
+def ver_extrato(): 
+    print("===== EXTRATO =====") 
+    for tipo, valor, data in extrato: 
+        print(f"{tipo}: R$ {valor:.2f} - {data}") 
+        print("====================")
     limpar_a_tela()
 
-def validacao(cpf):
-    global database, posicao, continuar
-    controle = 0
-    while controle < len(database):
-        for dados in database[controle].items():
-            keys = dados[0]
-            values = dados[1]
-            if cpf == values:
-                print('')
-                print(f'Dado cadastrado!!! {keys}: {values}')
-                posicao = controle
-                continuar =+ 1
-                break
 
-        controle += 1
-            
 def cadastrar_usuario():
-    global database, continuar, posicao
-    print('')
-    print(f'Cadastro de usuario!')
-    cpf = input('Digite seu CPF (Apenas numeros): ')
-    validacao(cpf)
-    if continuar == 0:
-        entrada_de_dados(cpf)
-        database.append(usuario)
-        print(f'Cadastro concluido')
+    cpf = input("Digite o CPF do usuário: ") 
+    if cpf in usuarios:
+        print("Usuário já cadastrado!")
+        atualizar = input("Deseja atualizar os dados? (s/n): ")
     else:
-        cadastrar = str(input('deseja atualizar cadastro? [S/N]').upper())
-        if cadastrar == 'S':
-            entrada_de_dados(cpf)
-            database[posicao]= usuario
-            print(f'Atualização cadastral concluido')
-    posicao = 0
-    continuar = 0
+        print('Usuario não cadastrado')
+        atualizar = input("Deseja cadastrar os dados? (s/n): ")
+    if atualizar.lower() != 's': 
+        return
+    nome = input("Nome completo: ").title()
+    email = input("Email: ")
+    telefone = input("Telefone: ")
+    usuarios[cpf] = {"nome": nome,
+        "email": email,
+        "telefone": telefone,}
+    atualizar_endereco = input("Deseja atualizar o endereço? (s/n): ") 
+    if atualizar_endereco.lower() != 's': 
+        return
+    cep = input('CEP (Apenas numeros)')
+    logradouro = input('Logradouro: [Rua/Avenida/Estrada]: ').title()
+    numeral = input('Numero: ')
+    lavrado = input('Lavradouro: [bairro/lote]: ').title()
+    cidade = input('Cidade: ').title()
+    estado = input('Estado: [EE]:').title()
+    pais  = input('Cidade [BR]:').title()
+    usuarios[cpf].update({'CEP: ':cep,
+                          'Logradouro: ': logradouro,
+                          'Nº': numeral,
+                          'Lavradouro: ':lavrado,
+                          'Cidade: ':cidade,
+                          'Estado: ':estado,
+                          'País: ':pais})
 
-def entrada_de_dados(cpf):
-        global usuario
-        cliente = Usuario
-        print('Digite seus dados: ')
-        cliente.nome = str(input(f'Nome completo: ').title())
-        cliente.telefone = int(input(f'telefone (apenas numeros com DDD): '))
-        cliente.email =  str(input(f'E-mail: '))
-        usuario = {'CPF: ': cpf,
-                    'Nome: ': cliente.nome,
-                    'Telefone: ': cliente.telefone,
-                    'E-mail: ': cliente.email}
-        cadastrar_endereco = str(input(f'Deseja cadastrar o enredeço? [S/N]').upper())
-        if cadastrar_endereco == 'S':
-            print(f'Cadastro de endereço ')
-            moradia = Endereco
-            moradia.cep = input('CEP (Apenas números): ')
-            moradia.logradouro = input('Rua: ')
-            moradia.numero = input('Numero: ')
-            moradia.cidade = input('Cidade: ')
-            moradia.estado = input('Estado [XX]')
-            moradia.pais = input('País [XX]')
-            usuario.update({'CEP: ': moradia.cep,
-                            'Rua: ': moradia.logradouro,
-                            'Numero: ': moradia.numero,
-                            'Cidade: ': moradia.cidade,
-                            'Estado: ': moradia.estado,
-                            'País: ': moradia.pais})
-            
-def mostrar_cadastro():
-    controle = 1
-    if len(database) <= 1:
-        print('')
-        print('Nenhum usuario cadastrado! ')
-        limpar_a_tela()
-        print('')
-    else:
-        while controle < len(database):
-            linha()
-            for usuario in database[controle].items():
-                keys = usuario[0]
-                value = usuario[1]
-                print(f'{keys}{value}')
-            controle += 1
-        limpar_a_tela()
-def mostrar_menu_principal():
-    print('''| PARA FUNÇÕES BANCÁRIAS -------------- [1] |
-| PARA FUNÇÕES INTERNAS --------------- [2] |''')
+
+    print("Usuário cadastrado/atualizado com sucesso!")
+    limpar_a_tela()
+
+def listar_usuarios(): 
+    cpf = input("Digite o CPF para listar os dados: ") 
     
-def menu_principal():
-        while True:
-            linha()
-            mostrar_menu_principal()
-            linha()
-            navegar = int(input(''))
-            if navegar == 1:
-                menu_bancario()
-            elif navegar == 2:
-                menu_interno()
-            else:
-                
-                print('| ----------------- ERRO!!! --------------- |')
-                limpar_a_tela()
+    if cpf in usuarios: 
+        dados = usuarios[cpf]
+        for keys, values in dados.items():
+            print(f'\n{keys}:{values}')
+    else: print("Usuário não encontrado!")
 
-def mostrar_menu_bancario():
-    linha()
-    print('''| Para SACAR -------------------------- [1] |
-| Para DEPOSITAR ---------------------- [2] |
-| Para SALDO -------------------------- [3] |
-| Para EXTRATO------------------------- [4] |
-| Para VOLTAR AO MENU PRINCIPAL ------- [5] |''')
-    linha()
-
-def menu_bancario():
-    while True:
-        mostrar_menu_bancario()
-        navegar = int(input(''))
-        if navegar == 1:
-            saque()
-        elif navegar == 2:
-            deposito()
-        elif navegar == 3:
-            mostrar_saldo()
-        elif navegar == 4:
-            mostrar_extrato()
-        elif navegar == 5:
-            limpar_a_tela()
-            menu_principal()
-        else:
-            print('| ----------------- ERRO!!! --------------- |')
-            limpar_a_tela()
-
-def mostrar_menu_interno():
-    linha()
-    print('''| Para CADASTRAR NOVOS USUARIOS ------- [1] |
-| Para LISTAR USUARIOS ---------------- [2] |
-| Para VOLTAR AO MENU PRINCIPAL ------- [3] |''')
-
-def menu_interno():
-    while True:
-        mostrar_menu_interno()
-        linha()
-        navegar = int(input(''))
-        if navegar == 1:
-            cadastrar_usuario()
-        elif navegar == 2:
-            mostrar_cadastro()
-        elif navegar ==3:
-            limpar_a_tela()
-            menu_principal()
-        else:
-            print('| ----------------- ERRO!!! --------------- |')
-            linha()
-
-def main():
-    print(f'-' * 17, 'Bem vindo', '-' * 17)
-    menu_principal()
-    fechar = input('Aperte tecla ENTER para fechar')
-    while fechar != '':
-        menu_principal()
-    print(f'-' * 17, 'Bem vindo', '-' * 17)
-    menu_principal()
-    fechar = input('Aperte tecla ENTER para fechar')
-    while fechar != '':
-        menu_principal()
+menu_principal()

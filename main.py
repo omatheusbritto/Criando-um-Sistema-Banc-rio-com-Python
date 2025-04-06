@@ -63,6 +63,6 @@ cadastrar nome, email, telefone e endereço
 
 2.3.1  Criar a função de voltar ao menu principal'''
 
-import funcoes from main
+import funcoes from menu_principal
 
-main()
+menu_principal()

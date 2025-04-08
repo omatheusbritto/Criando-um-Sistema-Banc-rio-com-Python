@@ -151,28 +151,40 @@ def sacar():
 def criar_conta():
     global agencia
     cpf = input("CPF do titular: ")
+    # Verificar se o CPF existe no registro de usuários
     if cpf not in usuarios:
         print("Usuário não encontrado. Cadastre o usuário primeiro.")
         return
+    # Solicitar o número da nova conta
     numero_conta = input("Digite o número da nova conta: ")
-    aux = 0
-    encontrado = 0
-    while aux < len(usuarios):
-        dados = usuarios
-        for keys, values in dados.items():
-            if numero_conta in values:
+    # Recuperar as contas existentes para o CPF
+
+        
+    contas_usuario = usuarios[cpf].get('contas', [])
+    # Verificar se a conta já existe
+    i = 0
+    cadastrar_conta = True
+    while i < len(usuarios[cpf]):
+        for conta in contas_usuario[i]:
+            if conta['Nº da conta'] == numero_conta:
                 print("Conta já existente.")
-                encontrado +=1
-                break
-            else:
-                aux = + 1
+                return
+            cadastrar_conta = False
+    
+    if cadastrar_conta == True:
+    # Criar a nova conta
+        nova_conta = {
+            'Agência': agencia,
+            'Nº da conta': numero_conta}
+        contas_usuario[cpf].append(nova_conta)
 
-    if encontrado == 0:
-        contas = {'Agência: ':agencia, 'Nº da conta: ':numero_conta}
-        usuarios[cpf].update(contas)
-        print(contas)
+    # Atualizar as informações do usuário
+    usuarios[cpf]['contas'] = contas_usuario
 
+    # Exibir a nova conta criada
     print("Conta criada com sucesso.")
+    print(nova_conta)
+
 
 def depositar():
     global saldo, registro, transacao
